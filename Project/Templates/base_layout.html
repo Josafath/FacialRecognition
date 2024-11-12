@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- ===== CSS ===== -->
+        <link rel="stylesheet" href="..\static\css\style.css">
+        {% block extra_css %}{% endblock %}
+        
+        <title>Sistema Asistencia DZ</title>
+    </head>
+    <style> 
+        .center {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 30%;
+          }
+    </style>
+    <body id="body-pd">
+        <div class="l-navbar" id="navbar">
+            <nav class="nav">
+                <div>
+                    <div class="nav__brand">
+                        <ion-icon name="menu-outline" class="nav__toggle" id="nav-toggle"></ion-icon>
+                        <a href="#" class="nav__logo">JossaCode</a>
+                    </div>
+                    <div class="nav__list">
+                        <a href={% url 'home' %} class="nav__link">
+                            <ion-icon name="home-outline" class="nav__icon"></ion-icon>
+                            <span class="nav__name">Dashboard</span>
+                        </a>
+                        <a href={% url 'capture_student' %} class="nav__link">
+                            <ion-icon name="person-add-outline" class="nav__icon"></ion-icon>
+                            <span class="nav__name">Registro Bailarin</span>
+                        </a>
+
+                        
+                        <a href={% url 'student-list' %} class="nav__link">
+                            <ion-icon name="people-outline" class="nav__icon"></ion-icon>
+                            <span class="nav__name">Ver Bailarines</span>
+                        </a>
+
+                        <a href="{% url 'capture_and_recognize' %}" class="nav__link">
+                            <ion-icon name="alarm-outline" class="nav__icon"></ion-icon>
+                            <span class="nav__name">Tomar Asistencia</span>
+                        </a>
+
+                        <a href="{% url 'student_attendance_list' %}" class="nav__link">
+                            <ion-icon name="bar-chart-outline" class="nav__icon"></ion-icon>
+                            <span class="nav__name">Asistencias del Día</span>
+                        </a>
+                        
+                        <a href="{% url 'camera_config_list' %}" class="nav__link">
+                            <ion-icon name="camera-outline" class="nav__icon"></ion-icon>
+                            <span class="nav__name">Conf. Camara</span>
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+
+                <a href={% url 'logout' %} class="nav__link">
+                    <ion-icon name="log-out-outline" class="nav__icon"></ion-icon>
+                    <span class="nav__name">Log Out</span>
+                </a>
+            </nav>
+        </div>
+        {% block content %}
+        {% endblock %}
+        <!-- ===== IONICONS ===== -->
+        <script src="https://unpkg.com/ionicons@5.1.2/dist/ionicons.js"></script>
+        
+        <!-- ===== MAIN JS ===== -->
+        <script src="../static/js/main.js"></script>
+    </body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ===== CSS ===== -->
+    <link rel="stylesheet" type="text/css" href="../static/css/login.css" />
+    <title>Sistema Asistencia DZ</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="form">
+          <h1>Ingresar</h1>
+          <form method="post">
+											{% csrf_token %}
+            <div class="inputbox">
+              <input type="text" required="required" name="username"/>
+              <span>Username</span>
+            </div>
+            <div class="inputbox">
+              <input type="password" required="required" name="password" />
+              <span>Password</span>
+            </div>
+            <div class="inputbox">
+													<button type="submit" class="button">Ingresar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="row">
+        <img
+          src="../media/PNG Ice Logo EDZ.PNG"
+          alt="Logo de DZ"
+          width="500"
+          height="600"
+        />
+      </div>
+    </div>
+  </body>
+</html>
