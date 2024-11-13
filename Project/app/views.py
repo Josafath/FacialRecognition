@@ -25,10 +25,6 @@ from django.contrib import messages
 from .models import Student
 
 
-# Create your views here.
-
-
-
 # Initialize MTCNN and InceptionResnetV1
 mtcnn = MTCNN(keep_all=True)
 resnet = InceptionResnetV1(pretrained='vggface2').eval()
@@ -179,87 +175,6 @@ def student_delete(request, pk):
     return render(request, 'student_delete_confirm.html', {'student': student})
 
 
-@login_required
-@user_passes_test(is_admin)
-def camera_config_create(request):
-    # Check if the request method is POST, indicating form submission
-    if request.method == "POST":
-        # Retrieve form data from the request
-        name = request.POST.get('name')
-        camera_source = request.POST.get('camera_source')
-        threshold = request.POST.get('threshold')
-
-        try:
-            # Save the data to the database using the CameraConfiguration model
-            CameraConfiguration.objects.create(
-                name=name,
-                camera_source=camera_source,
-                threshold=threshold,
-            )
-            # Redirect to the list of camera configurations after successful creation
-            return redirect('camera_config_list')
-
-        except IntegrityError:
-            # Handle the case where a configuration with the same name already exists
-            messages.error(request, "A configuration with this name already exists.")
-            # Render the form again to allow user to correct the error
-            return render(request, 'camera_config_form.html')
-
-    # Render the camera configuration form for GET requests
-    return render(request, 'camera_config_form.html')
-
-# READ: Function to list all camera configurations
-@login_required
-@user_passes_test(is_admin)
-def camera_config_list(request):
-    # Retrieve all CameraConfiguration objects from the database
-    configs = CameraConfiguration.objects.all()
-    # Render the list template with the retrieved configurations
-    return render(request, 'camera_config_list.html', {'configs': configs})
-
-
-# UPDATE: Function to edit an existing camera configuration
-@login_required
-@user_passes_test(is_admin)
-def camera_config_update(request, pk):
-    # Retrieve the specific configuration by primary key or return a 404 error if not found
-    config = get_object_or_404(CameraConfiguration, pk=pk)
-
-    # Check if the request method is POST, indicating form submission
-    if request.method == "POST":
-        # Update the configuration fields with data from the form
-        config.name = request.POST.get('name')
-        config.camera_source = request.POST.get('camera_source')
-        config.threshold = request.POST.get('threshold')
-        config.success_sound_path = request.POST.get('success_sound_path')
-
-        # Save the changes to the database
-        config.save()  
-
-        # Redirect to the list page after successful update
-        return redirect('camera_config_list')  
-    
-    # Render the configuration form with the current configuration data for GET requests
-    return render(request, 'camera_config_form.html', {'config': config})
-
-
-# DELETE: Function to delete a camera configuration
-@login_required
-@user_passes_test(is_admin)
-def camera_config_delete(request, pk):
-    # Retrieve the specific configuration by primary key or return a 404 error if not found
-    config = get_object_or_404(CameraConfiguration, pk=pk)
-
-    # Check if the request method is POST, indicating confirmation of deletion
-    if request.method == "POST":
-        # Delete the record from the database
-        config.delete()  
-        # Redirect to the list of camera configurations after deletion
-        return redirect('camera_config_list')
-
-    # Render the delete confirmation template with the configuration data
-    return render(request, 'camera_config_delete.html', {'config': config})
-
 
 def capture_and_recognize(request):
     stop_events = []  # List to store stop events for each thread
@@ -273,10 +188,8 @@ def capture_and_recognize(request):
         window_created = False  # Flag to track if the window was created
         try:
             # Check if the camera source is a number (local webcam) or a string (IP camera URL)
-            if cam_config.camera_source.isdigit():
-                cap = cv2.VideoCapture(int(cam_config.camera_source))  # Use integer index for webcam
-            else:
-                cap = cv2.VideoCapture(cam_config.camera_source)  # Use string for IP camera URL
+            
+            cap = cv2.VideoCapture(0)  # Use integer index for webcam
 
             if not cap.isOpened():
                 raise Exception(f"Unable to access camera {cam_config.name}.")
@@ -345,6 +258,7 @@ def capture_and_recognize(request):
                     break
 
         except Exception as e:
+            print(cam_config)
             print(f"Error in thread for {cam_config.name}: {e}")
             error_messages.append(str(e))  # Capture error message
         finally:
@@ -355,18 +269,16 @@ def capture_and_recognize(request):
 
     try:
         # Get all camera configurations
-        cam_configs = CameraConfiguration.objects.all()
-        if not cam_configs.exists():
-            raise Exception("No camera configurations found. Please configure them in the admin panel.")
-
+        cam_config = CameraConfiguration.objects.get(pk=3)
+       
         # Create threads for each camera configuration
-        for cam_config in cam_configs:
-            stop_event = threading.Event()
-            stop_events.append(stop_event)
+        
+        stop_event = threading.Event()
+        stop_events.append(stop_event)
 
-            camera_thread = threading.Thread(target=process_frame, args=(cam_config, stop_event))
-            camera_threads.append(camera_thread)
-            camera_thread.start()
+        camera_thread = threading.Thread(target=process_frame, args=(cam_config, stop_event))
+        camera_threads.append(camera_thread)
+        camera_thread.start()
 
         # Keep the main thread running while cameras are being processed
         while any(thread.is_alive() for thread in camera_threads):
